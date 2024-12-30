@@ -1,0 +1,183 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+    header("Location: login_test.html"); // Redirect unauthorized users
+    exit();
+}
+?>
+
+<!DOCTYPE html>
+<!-- menu.html -->
+<nav>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
+
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Management</title>
+</head>
+<body>
+    <h1>Menu Management</h1>
+
+    <!-- Add Menu Item Form -->
+    <form id="addMenuForm">
+        <input type="text" name="name" placeholder="Menu Name" required><br>
+        <input type="text" name="url" placeholder="Menu URL" required><br>
+        <button type="submit">Add Menu Item</button>
+    </form>
+
+    <br>
+
+    <!-- Add Submenu Form -->
+    <form id="addSubmenuForm" style="display: none;">
+        <h3>Add Submenu Item</h3>
+        <input type="hidden" id="parentMenuId" name="parent_id">
+        <input type="text" name="submenu_name" placeholder="Submenu Name" required><br>
+        <input type="text" name="submenu_url" placeholder="Submenu URL" required><br>
+        <button type="submit">Add Submenu</button>
+    </form>
+
+    <br>
+
+    <!-- Menu List -->
+    <h2>Menu Items</h2>
+    <div id="menuList"></div>
+
+    <script>
+        // Fetch and display menu items
+        function fetchMenu() {
+            fetch('menu_read.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const menuList = document.getElementById('menuList');
+                        menuList.innerHTML = '';
+                        data.menu.forEach(item => {
+                            const menuItem = document.createElement('div');
+                            menuItem.innerHTML = `
+                                <p>${item.name} - <a href="${item.url}" target="_blank">${item.url}</a></p>
+                                <button onclick="addSubmenu(${item.id})">Add Submenu</button>
+                                <button onclick="deleteMenu(${item.id})">Delete</button>
+                                <hr>
+                                <div id="submenu-${item.id}"></div>
+                            `;
+                            menuList.appendChild(menuItem);
+
+                            // Fetch submenus for the current menu item
+                            fetchSubmenu(item.id);
+                        });
+                    }
+                });
+        }
+
+        // Fetch and display submenus for a specific menu
+        function fetchSubmenu(menuId) {
+            fetch(`submenu_read.php?menu_id=${menuId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const submenuList = document.getElementById(`submenu-${menuId}`);
+                        submenuList.innerHTML = '';
+                        data.submenu.forEach(subitem => {
+                            const submenuItem = document.createElement('div');
+                            submenuItem.innerHTML = `
+                                <p>-- ${subitem.name} - <a href="${subitem.url}" target="_blank">${subitem.url}</a></p>
+                                <button onclick="deleteSubmenu(${subitem.id})">Delete</button>
+                            `;
+                            submenuList.appendChild(submenuItem);
+                        });
+                    }
+                });
+        }
+
+        // Add submenu item
+        function addSubmenu(menuId) {
+            document.getElementById('addSubmenuForm').style.display = 'block';
+            document.getElementById('parentMenuId').value = menuId;
+        }
+
+        document.getElementById('addSubmenuForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('submenu_add.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) {
+                        fetchSubmenu(document.getElementById('parentMenuId').value); // Refresh submenu list
+                        document.getElementById('addSubmenuForm').reset();
+                        document.getElementById('addSubmenuForm').style.display = 'none';
+                    }
+                });
+        });
+
+        // Add menu item
+        document.getElementById('addMenuForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('menu_add.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.success) fetchMenu(); // Refresh the menu list
+                });
+        });
+
+        // Delete menu item
+        function deleteMenu(id) {
+            if (confirm('Are you sure you want to delete this menu item?')) {
+                fetch('menu_delete.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id=${id}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) fetchMenu(); // Refresh the menu list
+                    });
+            }
+        }
+
+        // Delete submenu item
+        function deleteSubmenu(id) {
+            if (confirm('Are you sure you want to delete this submenu item?')) {
+                fetch('submenu_delete.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id=${id}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) {
+                            const parentMenuId = document.getElementById('parentMenuId').value;
+                            fetchSubmenu(parentMenuId); // Refresh submenu list
+                        }
+                    });
+            }
+        }
+
+        // Initial fetch
+        fetchMenu();
+    </script>
+</body>
+</html>

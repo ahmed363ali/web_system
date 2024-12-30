@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Management</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* Modern Menu Bar Styles */
+        .menu-bar {
+            background: #0d6efd; /* Match the blue color from the image */
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .menu-item {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: block;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover > a {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.logout a {
+            background-color: #0d6efd;
+        }
+
+        .menu-item.logout:hover a {
+            background-color: #0b5ed7;
+        }
+
+        /* Remove the old admin controls styles */
+        .admin-controls {
+            display: none;
+        }
+
+        /* Full-width Carousel with appropriate height */
+        .carousel {
+            position: relative;
+            width: 100%; /* Full width */
+            height: calc(100vh - 150px); /* Viewport height minus header/menu space */
+            margin: 0 auto; /* Remove vertical margin */
+            background: #000;
+            overflow: hidden;
+            border-radius: 0; /* Remove border radius for full-width look */
+        }
+
+        .slides {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .carouselSlide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            display: none;
+        }
+
+        .carouselSlide.active {
+            opacity: 1;
+            display: block;
+        }
+
+        .carouselSlide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Changed to cover for full-width look */
+            display: block;
+        }
+
+        /* Responsive height adjustments */
+        @media screen and (max-width: 768px) {
+            .carousel {
+                height: calc(100vh - 100px); /* Slightly smaller on mobile */
+            }
+        }
+
+        /* Navigation buttons */
+        #prevSlide, #nextSlide {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #prevSlide { left: 20px; }
+        #nextSlide { right: 20px; }
+
+        /* Indicators */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            z-index: 10;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+
+        .indicator.active {
+            background: white;
+        }
+
+        /* Add container for better page layout */
+        .carousel-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        /* Responsive Navbar Styles */
+        .navbar {
+            width: 100%;
+            background-color: #007bff;
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            padding: 10px 20px;
+            color: white;
+            background-color: transparent;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-weight: 500;
+        }
+
+        .navbar a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Hamburger Menu Icon */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: #007bff;
+                padding: 10px 0;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .navbar a {
+                width: 100%;
+                text-align: center;
+                padding: 15px 20px;
+                border-radius: 0;
+            }
+
+            .navbar a:hover {
+                background-color: #0056b3;
+            }
+        }
+
+        /* Message Styles */
+        .message {
+            display: none;
+            padding: 10px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.failure {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">BBC News</a>
+            <button class="menu-toggle" aria-label="Toggle navigation">☰</button>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="admin_panel.html">Admin Panel</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <h2>BBC News</h2>
+    <div class="carousel-container">
+        <div id="carouselContainer" class="carousel">
+            <button id="prevSlide" onclick="changeSlide(-1)">&#10094;</button>
+            <div id="carouselSlides" class="slides"></div>
+            <button id="nextSlide" onclick="changeSlide(1)">&#10095;</button>
+            <div class="carousel-indicators" id="carouselIndicators"></div>
+        </div>
+    </div>
+
+    <!-- Add Image to Carousel Form -->
+    <form id="addCarouselImageForm" enctype="multipart/form-data">
+        <h3>Add Image to Carousel</h3>
+        <input type="file" name="image" accept="image/*" required><br>
+        <button type="submit">Add Image</button>
+    </form>
+
+    <h1>LAST News </h1>
+
+    <!-- Add News Form -->
+    <form id="addNewsForm" enctype="multipart/form-data">
+        <input type="text" name="title" placeholder="Title" required><br>
+        <textarea name="content" placeholder="Content" required></textarea><br>
+        <input type="file" name="image" accept="image/*"><br>
+        <button type="submit">Add News</button>
+    </form>
+
+    <script>
+        function logout() {
+            fetch('logout.php')
+                .then(() => {
+                    window.location.href = 'login_test.html'; // Redirect to login page
+                });
+        }
+    </script>
+
+    <!-- Edit News Form -->
+    <form id="editNewsForm" style="display: none;" enctype="multipart/form-data">
+        <h3>Edit News</h3>
+        <input type="hidden" name="id" id="editId">
+        <input type="hidden" name="existing_image" id="existingImage">
+        <input type="text" name="title" id="editTitle" placeholder="Title" required><br>
+        <textarea name="content" id="editContent" placeholder="Content" required></textarea><br>
+        <input type="file" name="image" accept="image/*"><br>
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <!-- News List -->
+    <h2>News List</h2>
+    <div id="newsList"></div>
+
+    <!-- Pagination Controls -->
+    <div id="pagination">
+        <button id="prevPage" onclick="changePage(-1)">Previous</button>
+        <span id="currentPage">1</span>
+        <button id="nextPage" onclick="changePage(1)">Next</button>
+    </div>
+
+    <!-- Message Container -->
+    <div id="messageContainer" class="message"></div>
+
+    <script>
+        // Global Variables
+        let currentPage = 1;
+        const limit = 5;
+        let currentSlideIndex = 0; // Keep track of the current slide
+        let autoSlideInterval; // For storing the interval ID
+
+        // Fetch and display news
+        function fetchNews() {
+            fetch(`news_read.php?page=${currentPage}&limit=${limit}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    const newsList = document.getElementById('newsList');
+                    newsList.innerHTML = '';
+
+                    if (data.news.length === 0) {
+                        newsList.innerHTML = '<p>No news available.</p>';
+                        return;
+                    }
+
+                    data.news.forEach((news) => {
+                        // Escape special characters for the onclick attributes
+                        const escapedTitle = news.title.replace(/'/g, "\\'");
+                        const escapedContent = news.content.replace(/'/g, "\\'");
+                        const escapedImageUrl = news.image_url ? news.image_url.replace(/'/g, "\\'") : '';
+
+                        const newsItem = document.createElement('div');
+                        newsItem.classList.add('news-item');
+                        newsItem.innerHTML = `
+                            <h3>${news.title}</h3>
+                            <p>${news.content}</p>
+                            ${news.image_url ? `<img src="${news.image_url}" alt="Image" width="200">` : ''}
+                            <button onclick="deleteNews(${news.id})">Delete</button>
+                            <button onclick="editNews(${news.id}, '${escapedTitle}', '${escapedContent}', '${escapedImageUrl}')">Edit</button>
+                        `;
+                        newsList.appendChild(newsItem);
+                    });
+
+                    document.getElementById('currentPage').textContent = data.page;
+                    document.getElementById('prevPage').disabled = data.page <= 1;
+                    document.getElementById('nextPage').disabled = data.page * data.limit >= data.total;
+                })
+                .catch((error) => console.error('Error fetching news:', error));
+        }
+
+        // Change Pagination Page
+        function changePage(direction) {
+            currentPage += direction;
+            fetchNews();
+        }
+
+        // Add News
+        document.getElementById('addNewsForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('news_add.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('success', 'News added successfully!');
+                        fetchNews(); // Refresh the news list
+                    } else {
+                        showMessage('failure', 'Failed to add news: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    showMessage('failure', 'An error occurred: ' + error.message);
+                });
+        });
+
+        // Delete News
+        function deleteNews(id) {
+            if (confirm('Are you sure you want to delete this news?')) {
+                fetch('news_delete.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id=${id}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) {
+                            fetchNews(); // Refresh the news list
+                        }
+                    });
+            }
+        }
+
+        // Edit News
+        function editNews(id, title, content, imageUrl) {
+            // First, make sure we can edit any news by checking if the form exists
+            const editForm = document.getElementById('editNewsForm');
+            if (!editForm) {
+                console.error('Edit form not found');
+                return;
+            }
+
+            // Set the values in the edit form
+            document.getElementById('editId').value = id;
+            document.getElementById('editTitle').value = title.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
+            document.getElementById('editContent').value = content.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
+            document.getElementById('existingImage').value = imageUrl || '';
+
+            // Show the edit form and hide the add form
+            editForm.style.display = 'block';
+            document.getElementById('addNewsForm').style.display = 'none';
+
+            // Scroll to the edit form
+            editForm.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update the edit form submission handler
+        document.getElementById('editNewsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            
+            // Add error handling and loading state
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Saving...';
+
+            fetch('news_update.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert('News updated successfully!');
+                    fetchNews(); // Refresh the news list
+                    // Reset and hide the edit form
+                    this.reset();
+                    this.style.display = 'none';
+                    document.getElementById('addNewsForm').style.display = 'block';
+                } else {
+                    alert('Error updating news: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the news.');
+            })
+            .finally(() => {
+                // Re-enable the submit button
+                submitButton.disabled = false;
+                submitButton.textContent = 'Save Changes';
+            });
+        });
+
+        // Fetch Carousel and start auto-slide
+        function fetchCarousel() {
+            fetch('carousel_read.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const slides = document.getElementById('carouselSlides');
+                        const indicators = document.getElementById('carouselIndicators');
+                        slides.innerHTML = '';
+                        indicators.innerHTML = '';
+
+                        data.images.forEach((img, index) => {
+                            // Create slide
+                            const slide = document.createElement('div');
+                            slide.className = `carouselSlide ${index === 0 ? 'active' : ''}`;
+                            
+                            // Create and load image
+                            const image = new Image();
+                            image.src = img.image_url;
+                            image.alt = 'Carousel Image';
+                            
+                            // Add error handling for images
+                            image.onerror = function() {
+                                console.error('Error loading image:', img.image_url);
+                                this.src = 'placeholder.jpg'; // Add a placeholder image
+                            };
+
+                            slide.appendChild(image);
+
+                            // Add delete button
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.onclick = () => deleteCarouselImage(img.id);
+                            deleteBtn.innerHTML = 'Delete';
+                            deleteBtn.style.cssText = `
+                                position: absolute;
+                                top: 10px;
+                                right: 10px;
+                                background: rgba(255,0,0,0.7);
+                                color: white;
+                                border: none;
+                                padding: 5px 10px;
+                                cursor: pointer;
+                                border-radius: 4px;
+                            `;
+                            slide.appendChild(deleteBtn);
+                            slides.appendChild(slide);
+
+                            // Create indicator
+                            const indicator = document.createElement('div');
+                            indicator.className = `indicator ${index === 0 ? 'active' : ''}`;
+                            indicator.onclick = () => goToSlide(index);
+                            indicators.appendChild(indicator);
+                        });
+
+                        // Debug log
+                        console.log('Carousel images loaded:', data.images.length);
+                        
+                        // Start auto-slide if there are images
+                        if (data.images.length > 0) {
+                            startAutoSlide();
+                        }
+                    } else {
+                        console.error('Failed to load carousel images');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching carousel:', error);
+                    document.getElementById('carouselSlides').innerHTML = 
+                        '<div class="error-message">Error loading carousel images</div>';
+                });
+        }
+
+        // Delete Carousel Image
+        function deleteCarouselImage(id) {
+            if (confirm('Are you sure you want to delete this image?')) {
+                fetch('delete_carousel_image.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id=${id}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.success) {
+                            fetchCarousel(); // Refresh the carousel
+                        }
+                    })
+                    .catch(error => console.error('Error deleting image:', error));
+            }
+        }
+
+        // Function to change slides manually
+        function changeSlide(direction) {
+            const slides = document.querySelectorAll('.carouselSlide');
+            const indicators = document.querySelectorAll('.indicator');
+            
+            if (slides.length === 0) return;
+
+            // Remove active class from current slide and indicator
+            slides[currentSlideIndex].classList.remove('active');
+            indicators[currentSlideIndex].classList.remove('active');
+
+            // Calculate new index
+            currentSlideIndex = (currentSlideIndex + direction + slides.length) % slides.length;
+
+            // Add active class to new slide and indicator
+            slides[currentSlideIndex].classList.add('active');
+            indicators[currentSlideIndex].classList.add('active');
+        }
+
+        function goToSlide(index) {
+            const slides = document.querySelectorAll('.carouselSlide');
+            const indicators = document.querySelectorAll('.indicator');
+            
+            if (index < 0 || index >= slides.length) return;
+
+            // Remove active class from current slide and indicator
+            slides[currentSlideIndex].classList.remove('active');
+            indicators[currentSlideIndex].classList.remove('active');
+
+            // Update current index and add active class
+            currentSlideIndex = index;
+            slides[currentSlideIndex].classList.add('active');
+            indicators[currentSlideIndex].classList.add('active');
+
+            // Reset auto-slide timer
+            startAutoSlide();
+        }
+
+        // Function to start auto-slide
+        function startAutoSlide() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(() => {
+                changeSlide(1);
+            }, 5000);
+        }
+
+        // Function to stop auto-slide (optional)
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+
+        // Add image to Carousel
+        document.getElementById('addCarouselImageForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            fetch('carousel_add.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('success', 'Image added to carousel!');
+                        fetchCarousel(); // Refresh the carousel
+                    } else {
+                        showMessage('failure', 'Failed to add image: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    showMessage('failure', 'An error occurred: ' + error.message);
+                });
+        });
+
+        // Call functions on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchNews();
+            fetchCarousel(); // Fetch carousel data on page load
+        });
+
+        // Add JavaScript for mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinks = document.querySelector('.nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const isClickInside = navLinks.contains(event.target) || 
+                                     menuToggle.contains(event.target);
+                
+                if (!isClickInside && navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                }
+            });
+
+            // Close menu when window is resized above mobile breakpoint
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                }
+            });
+        });
+
+        // Function to show messages
+        function showMessage(type, text) {
+            // Get the message container element by its ID
+            const messageContainer = document.getElementById('messageContainer');
+            
+            // Set the class of the message container based on the type parameter
+            messageContainer.className = `message ${type}`;
+            
+            // Set the text content of the message container
+            messageContainer.textContent = text;
+            
+            // Make the message container visible
+            messageContainer.style.display = 'block';
+
+            // Hide the message container after 3 seconds
+            setTimeout(() => {
+                messageContainer.style.display = 'none';
+            }, 3000);
+        }
+    </script>  
+  </body>
+</html>

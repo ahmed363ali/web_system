@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <div id="menuContainer"></div>
+<script>
+    fetch('menu.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('menuContainer').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading menu:', error));
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Bar</title>
+    <link rel="stylesheet" href="menu_style.css">
+</head>
+<body>
+    <nav class="menu-bar">
+        <ul class="menu">
+            <li class="menu-item">
+                <a href="#">Home</a>
+            </li>
+            <li class="menu-item">
+                <a href="#">About</a>
+                <ul class="submenu">
+                    <li><a href="#">Our Team</a></li>
+                    <li><a href="#">Our Story</a></li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="#">Services</a>
+                <ul class="submenu">
+                    <li><a href="#">Web Development</a></li>
+                    <li><a href="#">SEO</a></li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="#">Contact</a>
+            </li>
+        </ul>
+    </nav>
+    <script src="menu_script.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+/* Add this temporary test at the top of your CSS file */
+body {
+    background-color: #f0f0f0 !important;
+}
+
+/* General Menu Bar Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+.menu-bar {
+    background-color: #333;
+    padding: 15px 0;
+}
+
+.menu {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.menu-item {
+    position: relative;
+}
+
+.menu-item a {
+    text-decoration: none;
+    color: white;
+    padding: 10px 20px;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.menu-item a:hover {
+    background-color: #0056b3;
+    border-radius: 4px;
+}
+
+/* Submenu Styling */
+.submenu {
+    list-style: none;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none; /* Hidden by default */
+    margin: 0;
+    padding: 0;
+    z-index: 10;
+    border-radius: 4px;
+}
+
+.submenu li {
+    padding: 0;
+    margin: 0;
+}
+
+.submenu li a {
+    color: #333;
+    padding: 10px 20px;
+    display: block;
+    text-align: left;
+}
+
+.submenu li a:hover {
+    background-color: #f4f4f4;
+}
+
+/* Display Submenu on Hover */
+.menu-item:hover .submenu {
+    display: block;
+}
+
+/* Responsive Styling */
+@media screen and (max-width: 768px) {
+    .menu {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .menu-item {
+        width: 100%;
+    }
+
+    .menu-item a {
+        width: 100%;
+    }
+
+    .submenu {
+        position: static;
+        display: none;
+    }
+
+    .menu-item:hover .submenu {
+        display: none; /* Disable hover effect on smaller screens */
+    }
+
+    .menu-item.active .submenu {
+        display: block;
+    }
+}

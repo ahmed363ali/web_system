@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 400px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+
+            <!-- CAPTCHA Section -->
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <img src="login.php?captcha=1" alt="CAPTCHA" id="captchaImage" style="border: 1px solid #ccc; border-radius: 4px;">
+                <button type="button" id="refreshCaptcha" style="width: 40%; font-size: 14px;">Refresh</button>
+            </div>
+            <input type="text" name="captcha" placeholder="Enter CAPTCHA" required>
+
+            <button type="submit">Login</button>
+            <div class="error-message" id="errorMessage"></div>
+        </form>
+
+        <!-- Registration Section -->
+        <div style="text-align: center; margin-top: 20px;">
+            <p>Don't have an account?</p>
+            <a href="register.html" style="color: #007bff; text-decoration: none; font-size: 16px; font-weight: bold;">Register Now</a>
+        </div>
+    </div>
+
+    <script>
+        // Handle Form Submission
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(this);
+
+            fetch('login.php', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        // Redirect user on success
+                        window.location.href = data.redirect;
+                    } else {
+                        // Display error message
+                        const errorMessage = document.getElementById('errorMessage');
+                        errorMessage.textContent = data.message;
+                        errorMessage.style.display = 'block';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        });
+
+        // Handle CAPTCHA Refresh
+        document.getElementById('refreshCaptcha').addEventListener('click', function () {
+            const captchaImage = document.getElementById('captchaImage');
+            captchaImage.src = 'login.php?new_captcha=1&' + new Date().getTime(); // Add a timestamp to force refresh
+        });
+    </script>
+</body>
+</html>

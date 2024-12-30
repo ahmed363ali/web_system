@@ -1,0 +1,19 @@
+function fetchCarousel() {
+    fetch('carousel_read.php')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // Debug response
+            if (data.success) {
+                const slides = document.getElementById('carouselSlides');
+                slides.innerHTML = '';
+                data.images.forEach((img, index) => {
+                    const slide = document.createElement('div');
+                    slide.className = 'carouselSlide';
+                    slide.style.display = index === 0 ? 'block' : 'none';
+                    slide.innerHTML = `<img src="${img.image_url}" alt="Carousel Image" width="100%">`;
+                    slides.appendChild(slide);
+                });
+            }
+        })
+        .catch(error => console.error('Error fetching carousel:', error));
+}
